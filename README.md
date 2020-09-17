@@ -1,2 +1,2 @@
 # defiApp
-Example DeFi Project with Solidity and JavaScript.
+Example Decentralized Finance(DeFi) Project written in Solidity and JavaScript.
