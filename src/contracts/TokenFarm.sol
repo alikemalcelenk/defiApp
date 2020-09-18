@@ -7,6 +7,7 @@ contract TokenFarm {
     string public name = "Akc Token Farm";
     AkcToken public akcToken;
     DaiToken public daiToken;
+    address public owner;
 
     // mapping = key->value
     address[] public stakers;
@@ -17,6 +18,7 @@ contract TokenFarm {
     constructor(AkcToken _akcToken, DaiToken _daiToken) public {
         akcToken = _akcToken;
         daiToken = _daiToken;
+        owner = msg.sender;
     }
 
     function stakeTokens(uint _amount) public {
@@ -38,5 +40,19 @@ contract TokenFarm {
         // Update staking status
         isStaking[msg.sender] = true;
         hasStaked[msg.sender] = true;
+    }
+
+     function issueTokens() public {
+        // Only owner can call this function
+        require(msg.sender == owner, "caller must be the owner");
+
+        // Issue tokens to all stakers
+        for (uint i=0; i<stakers.length; i++) {
+            address recipient = stakers[i];
+            uint balance = stakingBalance[recipient];
+            if(balance > 0) {
+                akcToken.transfer(recipient, balance);
+            }
+        }
     }
 }
