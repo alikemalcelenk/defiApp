@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Navbar from './Navbar'
 import './App.css'
+import Web3 from 'web3'
 
 class App extends Component {
 
@@ -8,6 +9,23 @@ class App extends Component {
     super(props)
     this.state = {
       account: '0x0'
+    }
+  }
+
+  async componentWillMount() {
+    await this.loadWeb3() //blockchaini uygulamaya bağladık.
+  }
+
+  async loadWeb3() {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum)
+      await window.ethereum.enable()
+    }
+    else if (window.web3) {
+      window.web3 = new Web3(window.web3.currentProvider)
+    }
+    else {
+      window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
     }
   }
 
@@ -21,7 +39,7 @@ class App extends Component {
               <div className="content mr-auto ml-auto">
 
                 <h1>Hello, World!</h1>
-                
+
               </div>
             </main>
           </div>
