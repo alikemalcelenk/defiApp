@@ -18,8 +18,8 @@ module.exports = async function (deployer, network, accounts) {
     // Transfer all tokens to TokenFarm (1 million)
     await akcToken.transfer(tokenFarm.address, '1000000000000000000000000')
 
-    // Transfer 100 Mock DAI tokens to investor
+    // Transfer 200 Mock DAI tokens to investor
     //accounts[0] -> deployer adress
     //accounts[1] -> investor adress
-    await daiToken.transfer(accounts[1], '100000000000000000000')
+    await daiToken.transfer(accounts[1], '200000000000000000000')
 };

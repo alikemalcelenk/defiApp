@@ -1,10 +1,15 @@
 import React, { Component } from 'react'
 import Navbar from './Navbar'
 import './App.css'
+
+//Blockchain 
 import Web3 from 'web3'
 import DaiToken from '../abis/DaiToken.json'
 import AkcToken from '../abis/AkcToken.json'
 import TokenFarm from '../abis/TokenFarm.json'
+
+//components
+import Main from './Main'
 
 class App extends Component {
 
@@ -18,7 +23,7 @@ class App extends Component {
       daiTokenBalance: '0', //Dengeyi kurmak için. Dai Token bakiyesini alacağız. 
       akcTokenBalance: '0', //Dengeyi kurmak için. Akc Token bakiyesini alacağız. 
       stakingBalance: '0', //Stake yapılacak bakiye
-      loading: true
+      isLoading: true
     }
   }
 
@@ -44,7 +49,7 @@ class App extends Component {
     const web3 = window.web3
 
     const accounts = await web3.eth.getAccounts() // Metamask(yatırımcı cüzdan ne kullanıyorsa) cüzdan adresini aldık
-    this.setState({ account: accounts[0] })  
+    this.setState({ account: accounts[0] })
 
     const networkId = await web3.eth.net.getId() // Ganache = 5777 
     console.log(networkId) //5777
@@ -61,7 +66,7 @@ class App extends Component {
     } else {
       window.alert('DaiToken contract not deployed to detected network.')
     }
-    
+
     // Load AkcToken
     const akcTokenData = AkcToken.networks[networkId]
     if (akcTokenData) {
@@ -88,11 +93,41 @@ class App extends Component {
       window.alert('TokenFarm contract not deployed to detected network.')
     }
 
-    this.setState({ loading: false })
+    this.setState({ isLoading: false })
 
   }
 
+  stakeTokens = (amount) => {
+    this.setState({ isLoading: true })
+    this.state.daiToken.methods.approve(this.state.tokenFarm._address, amount).send({ from: this.state.account }).on('transactionHash', (hash) => {
+      this.state.tokenFarm.methods.stakeTokens(amount).send({ from: this.state.account }).on('transactionHash', (hash) => {
+        this.setState({ isLoading: false })
+      })
+    })
+  }
+
+  unstakeTokens = (amount) => {
+    this.setState({ isLoading: true })
+    this.state.tokenFarm.methods.unstakeTokens().send({ from: this.state.account }).on('transactionHash', (hash) => {
+      this.setState({ isLoading: false })
+    })
+  }
+
   render() {
+
+    let content
+    if (this.state.isLoading) {
+      content = <p id="loader" className="text-center">Loading...</p>
+    } else {
+      content = <Main
+        daiTokenBalance={this.state.daiTokenBalance}
+        akcTokenBalance={this.state.akcTokenBalance}
+        stakingBalance={this.state.stakingBalance}
+        stakeTokens={this.stakeTokens}
+        unstakeTokens={this.unstakeTokens}
+      />
+    }
+
     return (
       <div>
         <Navbar account={this.state.account} />
@@ -102,6 +137,7 @@ class App extends Component {
               <div className="content mr-auto ml-auto">
 
                 <h1>Hello, World!</h1>
+                {content}
 
               </div>
             </main>
